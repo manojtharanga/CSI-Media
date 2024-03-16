@@ -1,0 +1,114 @@
+﻿@model List<Test1.Models.NumberViewModel>
+@{
+	ViewData["Title"] = "Number Sorter";
+	var successMsg = TempData["successMsg"]?.ToString();
+	var errorMsg = TempData["errorMsg"]?.ToString();
+}
+<h3 class="text-center">@ViewData["Title"]</h3>
+<hr />
+@if (!string.IsNullOrWhiteSpace(@successMsg))
+{
+	<div class="alert alert-success">
+		<strong>Success!!! </strong>@successMsg
+		<button type="button" class="btn-close float-end"></button>
+	</div>
+}
+else if (!string.IsNullOrWhiteSpace(@errorMsg))
+{
+	<div class="alert alert-danger">
+		<strong>Error!!! </strong>@errorMsg
+		<button type="button" class="btn-close float-end"></button>
+	</div>
+}
+
+<div class="text-center">
+	<form method="post" asp-controller="Number" asp-action="SortInputNum">
+		<label for="Numbers">Input numbers seperated by comma (,) </label>
+		<input type="text" name="Numbers" required />
+		<br /><br />
+		<input type="radio" id="ASC" name="SortBy" value="ASC" checked />
+		<label for="ASC">Sort by Ascending</label>
+		<input type="radio" id="DES" name="SortBy" value="DES" />
+		<label for="DES">Sort by Descending</label>
+		<br /><br />
+		<button type="submit">Sort and Save</button>
+	</form>
+</div>
+
+<hr />
+
+<form>
+	<table class="table table-responsive table-bordered table-hover">
+		<thead>
+			<tr class="table-active">
+				<th>ID</th>
+				<th>Number List</th>
+				<th>Sorted By</th>
+				<th>Processing Time</th>
+				<th>Created Date/Time</th>
+				<th>View/Export as JSON</th>
+			</tr>
+		</thead>
+		<tbody>
+			@if (Model.Any() && Model != null)
+			{
+				@foreach(var number in Model)
+				{
+					<tr>
+						<td>@number.Id</td>
+						<td>@number.NumberList</td>
+						<td>@number.SortType</td>
+						<td>@number.TimeTaken</td>
+						<td>@number.CreatedAt</td>
+						<td>
+							<div class="btn float-start">
+								<form method="get">
+								<input type="hidden" name="Btn" value="View" />
+								<input type="hidden" name="Indx" value="@number.Id" />
+								<button type="submit" asp-controller="Number" asp-action="ExportAsJson">View</button>
+								</form>
+							</div>
+							<div class="btn float-end">
+								<form method="get">
+								<input type="hidden" name="Btn" value="Exp" />
+								<input type="hidden" name="Indx" value="@number.Id" />
+								<button type="submit" asp-controller="Number" asp-action="ExportAsJson">Export</button>
+								</form>
+							</div>
+						</td>
+					</tr>
+				}
+				<tr>
+					<td colspan="6">
+						<form method="get">
+							<div class="btn float-end">
+								<input type="hidden" name="Btn" value="Exp" />
+								<button type="submit" asp-controller="Number" asp-action="ExportAsJson">Export All</button>
+							</div>
+						</form>
+						<form method="get">
+							<div class="btn float-end">
+								<input type="hidden" name="Btn" value="View" />
+								<button type="submit" asp-controller="Number" asp-action="ExportAsJson">View All</button>
+							</div>
+						</form>
+					</td>
+				</tr>
+			}
+			else
+			{
+				<tr>
+					<td colspan="6">
+						<div>No Records found.</div>
+					</td>
+				</tr>
+			}
+		</tbody>
+	</table>
+</form>
+
+@section Scripts{
+	@{
+		await Html.RenderPartialAsync("_ValidationScriptsPartial");
+	}
+}
